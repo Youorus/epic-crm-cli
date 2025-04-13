@@ -1,8 +1,8 @@
-from datetime import datetime
-from .exceptions import ValidationError
+import dateparser
+from cli.validators.exceptions import ValidationError
 
 def parse_french_date(date_str: str):
-    try:
-        return datetime.strptime(date_str, "%d %B %Y").date()
-    except ValueError:
+    date = dateparser.parse(date_str, languages=['fr'])
+    if date is None:
         raise ValidationError("Format de date invalide. Utilise : 18 avril 2021")
+    return date.date()

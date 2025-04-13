@@ -1,4 +1,4 @@
-# cli/menu/commercial_menu.py
+# cli/menu/commercial.py
 from cli.forms.contract_update_form import update_contract_form
 from cli.forms.create_client_form import create_client_form
 from cli.forms.create_event_form import create_event_form
@@ -12,19 +12,17 @@ from cli.services.update_client import update_client
 from cli.services.update_contract import update_contract
 from cli.services.update_event import update_event
 
-
 def commercial_menu(token):
     while True:
         print("\n--- MENU COMMERCIAL ---")
-        print("1. Lister des clients")
+        print("1. Lister tous les clients")
         print("2. Créer un client")
-        print("3. Modifier un client")
-        print("4. Lister mes contrats")
-        print("5. Filtrer contrats non signés")
-        print("6. Filtrer contrats non payés")
-        print("7. Modifier un contrat")
-        print("8. Créer un événement")
-        print("9. Modifier un événement")
+        print("3. Mettre à jour un client (dont je suis responsable)")
+        print("4. Lister tous les contrats")
+        print("5. Contrats non signés")
+        print("6. Contrats non payés")
+        print("7. Modifier un contrat (dont je suis responsable)")
+        print("8. Créer un événement (pour un client avec contrat signé)")
         print("0. Quitter")
         choice = input("Choix : ")
 
@@ -57,10 +55,6 @@ def commercial_menu(token):
             data = create_event_form(signed_contracts)
             if data:
                 create_event(token, data)
-
-        elif choice == '9':
-            event_id, data = update_event_form()
-            update_event(token, event_id, data)
 
         elif choice == '0':
             break

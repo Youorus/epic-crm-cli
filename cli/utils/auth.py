@@ -1,7 +1,6 @@
-import requests
+import jwt
 
-API_URL = 'http://127.0.0.1:8000/api/'
-TOKEN_URL = API_URL + 'token/'
+from cli.services.authentification import api_login, api_get_current_user
 
 
 def login():
@@ -9,10 +8,11 @@ def login():
     username = input("Nom d'utilisateur : ")
     password = input("Mot de passe : ")
 
-    response = requests.post(TOKEN_URL, data={
-        'username': username,
-        'password': password
-    })
+    response = api_login(username, password)
+
+    if response is None:
+        print("❌ Erreur de connexion au serveur.")
+        return None
 
     if response.status_code == 200:
         token = response.json()['access']
@@ -23,20 +23,21 @@ def login():
         return None
 
 
-def get_current_user(token):
-    headers = {'Authorization': f'Bearer {token}'}
-    response = requests.get(API_URL + 'me/', headers=headers)
+def get_current_user(token: str):
+    response = api_get_current_user(token)
+
+    if response is None:
+        print("❌ Le serveur est injoignable.")
+        return None
 
     if response.status_code == 200:
         return response.json()
-    return None
+    else:
+        print("❌ Impossible de récupérer les informations de l'utilisateur.")
+        return None
 
 
-# Optionnel : pour décoder le token sans le valider (utile pour obtenir l'identité)
-import jwt
-
-
-def decode_token(token):
+def decode_token(token: str):
     try:
         return jwt.decode(token, options={"verify_signature": False}, algorithms=["HS256"])
     except Exception:

@@ -1,5 +1,5 @@
-from cli.auth import login, get_current_user
-from cli.menu import show_menu
+from cli.utils.auth import login, get_current_user
+from cli.menu_option import show_menu
 
 def main():
     token = login()
