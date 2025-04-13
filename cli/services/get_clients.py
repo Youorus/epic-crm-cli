@@ -1,5 +1,7 @@
-from cli.utils.config import CLIENT_URL
 import requests
+
+from cli.utils.config import CLIENT_URL
+
 
 def list_clients(token: str, display: bool = True):
     headers = {'Authorization': f'Bearer {token}'}
@@ -15,8 +17,10 @@ def list_clients(token: str, display: bool = True):
             if display:
                 print("\n--- Liste des clients ---")
                 for c in clients:
-                    print(f"{c['id']}: {c['full_name']} - {c['company_name']} - {c['email']}")
-            return clients
+                    sales_contact = c.get("sales_contact_name", "Non assigné")
+                    print(f"{c['id']}: {c['full_name']} - {c['company_name']} - {c['email']} (Commercial : {sales_contact})")
+
+            return clients  # ✅ bien à la fin
 
         else:
             print("❌ Erreur lors de la récupération des clients.")

@@ -12,7 +12,7 @@ from cli.services.update_client import update_client
 from cli.services.update_contract import update_contract
 from cli.services.update_event import update_event
 
-def commercial_menu(token):
+def commercial_menu(user, token):
     while True:
         print("\n--- MENU COMMERCIAL ---")
         print("1. Lister tous les clients")
@@ -34,7 +34,7 @@ def commercial_menu(token):
             create_client(token, data)
 
         elif choice == '3':
-            client_id, data = update_client_form()
+            client_id, data = update_client_form(token, user)
             update_client(token, client_id, data)
 
         elif choice == '4':

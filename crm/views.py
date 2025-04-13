@@ -20,7 +20,7 @@ class CommercialClientViewSet(viewsets.ModelViewSet):
     permission_classes = [IsCommercial]
 
     def get_queryset(self):
-        return Client.objects.filter(sales_contact=self.request.user)
+        return Client.objects.all()
 
     def perform_create(self, serializer):
         serializer.save(sales_contact=self.request.user)

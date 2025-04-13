@@ -32,6 +32,8 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 class ClientSerializer(serializers.ModelSerializer):
+    sales_contact_name = serializers.CharField(source="sales_contact.username", read_only=True)
+
     class Meta:
         model = Client
         fields = '__all__'
@@ -44,7 +46,13 @@ class ClientSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def validate_email(self, value):
-        if Client.objects.filter(email=value).exists():
+        qs = Client.objects.filter(email=value)
+
+        # Si en update : exclure l'instance actuelle
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+
+        if qs.exists():
             raise serializers.ValidationError("Un client avec cet email existe déjà.")
         return value
 
