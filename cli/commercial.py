@@ -1,41 +1,4 @@
-import re
-from datetime import datetime
 
-import requests
-
-from cli.validators import ValidationError, validate_email
-
-API_BASE_URL = "http://127.0.0.1:8000/api/"
-CLIENT_URL = API_BASE_URL + "clients/"
-CONTRACT_URL = API_BASE_URL + "contracts/"
-EVENT_URL = API_BASE_URL + "events/"
-
-
-
-
-
-
-
-def update_contract(token):
-    print("\n=== Modification d’un contrat ===")
-    headers = {'Authorization': f'Bearer {token}'}
-    contract_id = input("ID du contrat à modifier : ").strip()
-
-    total_amount = input("Montant total : ").strip()
-    amount_due = input("Montant dû : ").strip()
-    is_signed = input("Contrat signé ? (true/false) : ").strip().lower() == "true"
-
-    data = {
-        "total_amount": total_amount,
-        "amount_due": amount_due,
-        "is_signed": is_signed
-    }
-
-    response = requests.put(f"{CONTRACT_URL}{contract_id}/", json=data, headers=headers)
-    if response.status_code == 200:
-        print("✅ Contrat mis à jour")
-    else:
-        print("❌ Erreur :", response.json())
 
 
 def create_event(token):

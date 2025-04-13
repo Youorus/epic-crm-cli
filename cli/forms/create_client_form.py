@@ -53,23 +53,3 @@ def create_client_form():
 
     return data
 
-
-def update_client_form():
-    print("\n=== Modification d’un client ===")
-    client_id = input("ID du client à modifier : ").strip()
-
-    full_name = input("Nom complet : ").strip()
-    email = input("Email : ").strip()
-    phone = input("Téléphone : ").strip()
-    company_name = input("Entreprise : ").strip()
-    last_contact = input("Dernier contact (YYYY-MM-DD) : ").strip()
-
-    data = {
-        "full_name": full_name,
-        "email": email,
-        "phone": phone,
-        "company_name": company_name,
-        "last_contact": last_contact
-    }
-
-    return client_id, data

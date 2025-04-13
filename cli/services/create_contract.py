@@ -1,6 +1,6 @@
 import requests
 
-from cli.commercial import CONTRACT_URL
+from cli.utils.config import CONTRACT_URL
 
 
 def create_contract(token, data):
