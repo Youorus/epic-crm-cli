@@ -14,42 +14,6 @@ EVENT_URL = API_BASE_URL + "events/"
 
 
 
-def update_client(token):
-    print("\n=== Modification d’un client ===")
-    headers = {'Authorization': f'Bearer {token}'}
-    client_id = input("ID du client à modifier : ").strip()
-
-    full_name = input("Nom complet : ").strip()
-    email = input("Email : ").strip()
-    phone = input("Téléphone : ").strip()
-    company_name = input("Entreprise : ").strip()
-    last_contact = input("Dernier contact (YYYY-MM-DD) : ").strip()
-
-    data = {
-        "full_name": full_name,
-        "email": email,
-        "phone": phone,
-        "company_name": company_name,
-        "last_contact": last_contact
-    }
-
-    response = requests.put(f"{CLIENT_URL}{client_id}/", json=data, headers=headers)
-    if response.status_code == 200:
-        print("✅ Client mis à jour")
-    else:
-        print("❌ Erreur : ", response.json())
-
-
-def list_contracts(token, filters=""):
-    print("\n--- Liste des contrats ---")
-    headers = {'Authorization': f'Bearer {token}'}
-    response = requests.get(CONTRACT_URL + filters, headers=headers)
-    if response.status_code == 200:
-        contrats = response.json()
-        for c in contrats:
-            print(f"Contrat {c['id']} | Client ID: {c['client']} | Signé: {c['is_signed']} | Restant dû: {c['amount_due']}")
-    else:
-        print("❌ Erreur :", response.json())
 
 
 def update_contract(token):
@@ -73,19 +37,6 @@ def update_contract(token):
     else:
         print("❌ Erreur :", response.json())
 
-def list_clients(token):
-    print("\n--- Liste des clients ---")
-    headers = {'Authorization': f'Bearer {token}'}
-    try:
-        response = requests.get(CLIENT_URL, headers=headers)
-        if response.status_code == 200:
-            clients = response.json()
-            for c in clients:
-                print(f"{c['id']}: {c['full_name']} - {c['company_name']} - {c['email']}")
-        else:
-            print("❌ Erreur lors de la récupération des clients.")
-    except requests.exceptions.RequestException:
-        print("❌ Le serveur est injoignable.")
 
 def create_event(token):
     print("\n=== Création d’un événement ===")
