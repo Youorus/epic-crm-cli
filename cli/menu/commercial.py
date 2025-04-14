@@ -1,8 +1,8 @@
 # cli/menu/commercial.py
-from cli.forms.contract_update_form import update_contract_form
 from cli.forms.create_client_form import create_client_form
 from cli.forms.create_event_form import create_event_form
 from cli.forms.update_client_form import update_client_form
+from cli.forms.update_contract_form import update_contract_form
 from cli.forms.update_event_form import update_event_form
 from cli.services.create_client import create_client
 from cli.services.create_event import create_event

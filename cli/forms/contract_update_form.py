@@ -37,8 +37,3 @@ def create_contract_form():
         "amount_due": amount_due,
         "is_signed": is_signed
     }
-
-def update_contract_form():
-    contract_id = input("ID du contrat à modifier : ").strip()
-    data = create_contract_form()
-    return contract_id, data
