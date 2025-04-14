@@ -2,13 +2,14 @@
 from cli.forms.contract_update_form import create_contract_form
 from cli.forms.update_contract_form import update_contract_form
 from cli.forms.update_event_form import update_event_form
+from cli.forms.user_create_form import create_user_form
+from cli.forms.user_update_form import update_user_form
 from cli.services.get_clients import list_clients
 from cli.services.get_contracts import list_contracts
 from cli.services.update_contract import update_contract
 from cli.services.update_event import update_event
 from cli.services.create_contract import create_contract
-
-
+from cli.services.user import create_user
 
 
 def gestion_menu(user, token):
