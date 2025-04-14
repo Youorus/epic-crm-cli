@@ -1,12 +1,12 @@
 import requests
 
-from cli.utils.config import CONTRACT_URL
+from cli.utils.config import  GESTION_CONTRACT_URL
 
 
 def create_contract(token, data):
     headers = {'Authorization': f'Bearer {token}'}
     try:
-        response = requests.post(CONTRACT_URL, json=data, headers=headers)
+        response = requests.post(GESTION_CONTRACT_URL, json=data, headers=headers)
         if response.status_code == 201:
             print("✅ Contrat créé avec succès.")
         else:

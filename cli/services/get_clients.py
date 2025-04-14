@@ -1,7 +1,5 @@
 import requests
-
 from cli.utils.config import CLIENT_URL
-
 
 def list_clients(token: str, display: bool = True):
     headers = {'Authorization': f'Bearer {token}'}
@@ -22,8 +20,12 @@ def list_clients(token: str, display: bool = True):
 
             return clients
 
+        elif response.status_code == 403:
+            print("⛔ Accès refusé. Vous n'avez pas la permission d'afficher les clients.")
+            return []
         else:
             print("❌ Erreur lors de la récupération des clients.")
+            print("📨", response.text)
             return []
 
     except requests.exceptions.RequestException:

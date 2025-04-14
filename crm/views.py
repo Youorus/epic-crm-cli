@@ -46,6 +46,17 @@ class CommercialClientViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("Vous ne pouvez modifier que vos propres clients.")
         serializer.save()
 
+class GestionContractViewSet(viewsets.ModelViewSet):
+    serializer_class = ContractSerializer
+    permission_classes = [IsGestionOnly]
+
+    def get_queryset(self):
+        return Contract.objects.all()
+
+    def perform_create(self, serializer):
+        client = serializer.validated_data["client"]
+        serializer.save(sales_contact=client.sales_contact)
+
 class CommercialContractViewSet(viewsets.ModelViewSet):
     serializer_class = ContractSerializer
     permission_classes = [IsCommercial]
