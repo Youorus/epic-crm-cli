@@ -52,7 +52,7 @@ def commercial_menu(user, token):
 
         elif choice == '8':
             signed_contracts = list_contracts(token, filters="?is_signed=true", display=False)
-            data = create_event_form(signed_contracts)
+            data = create_event_form(signed_contracts, user)
             if data:
                 create_event(token, data)
 

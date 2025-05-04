@@ -43,7 +43,7 @@ def gestion_menu(user, token):
             create_contract(token, data)
 
         elif choice == '4':
-            contract_id, data = update_contract_form()
+            contract_id, data = update_contract_form(token,user)
             update_contract(token, contract_id, data)
 
         elif choice == '5':

@@ -47,6 +47,7 @@ class CommercialClientViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 class GestionContractViewSet(viewsets.ModelViewSet):
+    queryset = Contract.objects.all()
     serializer_class = ContractSerializer
     permission_classes = [IsGestionOnly]
 

@@ -1,3 +1,4 @@
+from cli.services.get_contract_by_id import get_contract_by_id
 from cli.validators.exceptions import ValidationError
 from cli.validators.validate_amount import validate_amount
 
@@ -5,7 +6,7 @@ def update_contract_form(token, user):
     print("\n=== Modification d’un contrat ===")
     contract_id = input("ID du contrat à modifier : ").strip()
 
-    # 🔁 Récupération de l'ancien contrat
+    # 🔁 Récupération du contrat existant
     contract = get_contract_by_id(contract_id, token)
 
     if not contract:
@@ -18,7 +19,6 @@ def update_contract_form(token, user):
         return None, None
 
     print("➡️ Laisse vide pour conserver la valeur actuelle.")
-
     data = {}
 
     # 💰 Montant total
@@ -59,5 +59,8 @@ def update_contract_form(token, user):
             break
         else:
             print("❌ Réponds par 'oui' ou 'non'.")
+
+    # ✅ Inclure le client (obligatoire pour PUT)
+    data["client"] = contract["client"]
 
     return contract_id, data
