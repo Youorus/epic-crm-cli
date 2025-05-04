@@ -3,8 +3,10 @@ from cli.utils.config import EVENT_URL
 
 def list_events(token: str, filters: str = "", display: bool = True):
     headers = {'Authorization': f'Bearer {token}'}
+
     try:
         response = requests.get(EVENT_URL + filters, headers=headers)
+
         if response.status_code == 200:
             events = response.json()
 
@@ -13,20 +15,30 @@ def list_events(token: str, filters: str = "", display: bool = True):
                 return []
 
             if display:
-                print("\n--- Liste des événements ---")
+                print("\n📅 --- Liste des événements ---")
                 for e in events:
-                    support = e.get("support_contact", None)
-                    support_display = support if support else "Aucun support"
+                    support = e.get("support_contact") or "— Aucun support"
                     print(
-                        f"{e['id']} • {e['event_name']} | Client ID: {e['client']} | "
-                        f"Support: {support_display} | "
-                        f"Début: {e['event_start']} | Fin: {e['event_end']}"
+                        f"\n🆔 Événement #{e['id']} : {e['event_name']}\n"
+                        f"   👤 Client ID      : {e['client']}\n"
+                        f"   🧑‍💼 Support        : {support}\n"
+                        f"   📍 Lieu           : {e.get('location', 'Non spécifié')}\n"
+                        f"   👥 Participants   : {e.get('attendees', 'NC')}\n"
+                        f"   🕒 Début          : {e['event_start']}\n"
+                        f"   🕓 Fin            : {e['event_end']}\n"
+                        f"   📝 Notes          : {e.get('notes', 'Aucune note')}"
                     )
 
             return events
+
         else:
-            print("❌ Erreur lors de la récupération des événements.")
+            print("❌ Erreur lors de la récupération des événements :")
+            try:
+                print(response.json())
+            except ValueError:
+                print(response.text)
             return []
-    except requests.exceptions.RequestException:
-        print("❌ Le serveur est injoignable.")
+
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Le serveur est injoignable : {e}")
         return []

@@ -17,11 +17,14 @@ CLIENT_URL = f"{API_BASE_URL}clients/"
 CONTRACT_URL = f"{API_BASE_URL}contracts/"
 
 # Events
-EVENT_URL = f"{API_BASE_URL}commercial/events/"
+EVENT_URL = f"{API_BASE_URL}events/"
+
+GESTION_EVENT_URL = f"{API_BASE_URL}gestion/events/"
 
 GESTION_CONTRACT_URL = f"{API_BASE_URL}gestion/contracts/"
 
 COMMERCIAL_CONTRACT_URL = f"{API_BASE_URL}commercial/contracts/"
+COMMERCIAL_EVENT_URL = f"{API_BASE_URL}commercial/events/"
 
 # Users (si admin gestion des utilisateurs par exemple)
 USER_URL = f"{API_BASE_URL}users/"

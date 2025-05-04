@@ -8,7 +8,7 @@ from .views import (
     CommercialEventViewSet,
     GlobalClientViewSet,
     GlobalContractViewSet,
-    GlobalEventViewSet, GestionContractViewSet,
+    GlobalEventViewSet, GestionContractViewSet, GestionEventViewSet,
 )
 
 router = DefaultRouter()
@@ -28,6 +28,7 @@ router.register(r'commercial/clients', CommercialClientViewSet, basename='commer
 router.register(r'commercial/contracts', CommercialContractViewSet, basename='commercial-contracts')
 router.register(r'commercial/events', CommercialEventViewSet, basename='commercial-events')
 
+router.register(r'gestion/events', GestionEventViewSet, basename='gestion-events')
 # Route perso
 urlpatterns = [
     path('me/', MeView.as_view(), name='me'),

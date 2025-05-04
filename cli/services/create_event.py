@@ -1,12 +1,12 @@
 import requests
 
-from cli.utils.config import EVENT_URL
+from cli.utils.config import EVENT_URL, COMMERCIAL_EVENT_URL
 
 
 def create_event(token, data):
     headers = {'Authorization': f'Bearer {token}'}
     try:
-        response = requests.post(EVENT_URL, json=data, headers=headers)
+        response = requests.post(COMMERCIAL_EVENT_URL, json=data, headers=headers)
         if response.status_code == 201:
             print("🎉 Événement créé avec succès !")
         else:

@@ -12,6 +12,8 @@ from cli.services.get_events import list_events
 from cli.services.update_contract import update_contract
 from cli.services.update_event import update_event
 from cli.services.create_contract import create_contract
+from cli.services.update_support import update_support
+from cli.services.update_support_event import update_support_event
 from cli.services.update_user import update_user
 from cli.services.user import create_user
 
@@ -52,9 +54,13 @@ def gestion_menu(user, token):
         elif choice == '6':
             list_events(token, filters="?support_contact__isnull=true")
 
+
         elif choice == '7':
-            event_id, data = update_event_form()
-            update_event(token, event_id, data)
+
+            event_id, data = update_support_event(token)
+
+            if event_id and data:
+                update_support(token, event_id, data)
 
         elif choice == '8':
             data = create_user_form()

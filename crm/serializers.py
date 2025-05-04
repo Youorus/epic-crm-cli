@@ -70,10 +70,17 @@ class ContractSerializer(serializers.ModelSerializer):
         return data
 
 class EventSerializer(serializers.ModelSerializer):
+    support_contact = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
         fields = '__all__'
         read_only_fields = ['client']
+
+    def get_support_contact(self, obj):
+        if obj.support_contact:
+            return obj.support_contact.username  # ou .get_full_name() si tu préfères
+        return None
 
     def validate(self, data):
         user = self.context['request'].user

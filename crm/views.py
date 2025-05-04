@@ -84,6 +84,29 @@ class CommercialEventViewSet(viewsets.ModelViewSet):
         if contract.sales_contact != self.request.user:
             raise PermissionDenied("Vous ne pouvez créer des événements que pour vos contrats.")
         serializer.save()
+class GestionEventViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    permission_classes = [IsGestionOnly]
+
+    def update(self, request, *args, **kwargs):
+        event = self.get_object()
+
+        support_id = request.data.get("support_contact")
+        if not support_id:
+            return Response({"detail": "Le champ 'support_contact' est requis."}, status=400)
+
+        try:
+            support_user = User.objects.get(pk=support_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Utilisateur support introuvable."}, status=404)
+
+        # Met à jour uniquement le support
+        event.support_contact = support_user
+        event.save()
+
+        serializer = self.get_serializer(event)
+        return Response(serializer.data)
 
 # --- Support : ne peut modifier que les événements qui leur sont assignés ---
 class SupportEventViewSet(viewsets.ModelViewSet):
