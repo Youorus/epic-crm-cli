@@ -1,8 +1,15 @@
 import requests
 from cli.utils.config import EVENT_URL
 
-def list_events(token: str, filters: str = "", display: bool = True):
+def list_events(token: str, filters: str = "", user_id: int = None, display: bool = True):
     headers = {'Authorization': f'Bearer {token}'}
+
+    # 🔧 Ajout du filtre support_contact si user_id est fourni
+    if user_id:
+        if '?' in filters:
+            filters += f"&support_contact={user_id}"
+        else:
+            filters = f"?support_contact={user_id}"
 
     try:
         response = requests.get(EVENT_URL + filters, headers=headers)
