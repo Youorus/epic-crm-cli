@@ -2,8 +2,8 @@
 
 from typing import Optional
 
+from cli.forms.contracts.contract_update_form import create_contract_form
 # ✅ Imports formulaires (création / mise à jour / suppression utilisateurs & contrats)
-from cli.forms.contracts.create_contract_form import create_contract_form
 from cli.forms.contracts.update_contract_form import update_contract_form
 from cli.forms.users.create_user_form import create_user_form
 from cli.forms.users.user_update_form import update_user_form

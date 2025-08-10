@@ -13,9 +13,9 @@ def url(path: str) -> str:
     return API_BASE_URL + path.lstrip("/")
 
 # --- Auth (SimpleJWT) ---
-JWT_CREATE_URL  = url("auth/jwt/create")   # POST
-JWT_REFRESH_URL = url("auth/jwt/refresh")  # POST
-JWT_VERIFY_URL  = url("auth/jwt/verify")   # POST
+JWT_CREATE_URL  = url("auth/jwt/create/")   # POST
+JWT_REFRESH_URL = url("auth/jwt/refresh/")  # POST
+JWT_VERIFY_URL  = url("auth/jwt/verify/")   # POST
 
 # (Optionnel, seulement si tu as cet endpoint côté API)
 ME_URL = url("users/me/")  # GET
