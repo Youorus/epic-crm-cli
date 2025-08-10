@@ -1,4 +1,4 @@
-# seed.py (à la racine du projet)
+# seed.py
 import os
 import sys
 import random
@@ -18,24 +18,37 @@ from crm.clients.models import Client
 from crm.contracts.models import Contract
 from crm.events.models import Event
 
-# --- Config seed ---
+# --- Config seeds ---
 USER_DATA = [
-    {"username": "commercial_1", "email": "commercial@example.com", "role": "COMMERCIAL"},
-    {"username": "support_1", "email": "support@example.com", "role": "SUPPORT"},
-    {"username": "gestion_1", "email": "gestion@example.com", "role": "GESTION"},
+    {"username": "commercial_1", "email": "alice.dupont@example.com", "role": "COMMERCIAL"},
+    {"username": "support_1", "email": "bob.moreau@example.com", "role": "SUPPORT"},
+    {"username": "gestion_1", "email": "claire.bernard@example.com", "role": "GESTION"},
 ]
 PASSWORD = "Azerty123$"
 APPS = ["users", "clients", "contracts", "events"]
 
+CLIENT_NAMES = [
+    ("Jean Martin", "Société Alpha"),
+    ("Sophie Durand", "Durand Consulting"),
+    ("Karim Boulahya", "TechWave"),
+    ("Emma Lefèvre", "Lefèvre & Fils"),
+    ("Lucas Petit", "Petit Design"),
+    ("Nora Benali", "Benali Co."),
+    ("Antoine Girard", "Girard Architecture"),
+    ("Lina Fontaine", "Fontaine Luxe"),
+]
+
+EVENT_LOCATIONS = [
+    "Salle Eiffel - Paris", "Hôtel de Ville - Lyon", "Centre Expo - Marseille",
+    "Palais des Congrès - Lille", "Espace Atlantique - Nantes", "Salle Horizon - Toulouse",
+    "Château de Versailles", "Villa Méditerranée - Marseille"
+]
 
 def _sqlite_path():
     db = settings.DATABASES.get("default", {})
     if db.get("ENGINE") == "django.db.backends.sqlite3":
-        name = db.get("NAME")
-        # NAME peut être un Path; on convertit en str
-        return str(name)
+        return str(db.get("NAME"))
     return None
-
 
 def _clean_migrations():
     print("🗑 Suppression des anciennes migrations...")
@@ -45,11 +58,9 @@ def _clean_migrations():
         os.makedirs(migrations_path, exist_ok=True)
         for entry in os.listdir(migrations_path):
             path = os.path.join(migrations_path, entry)
-            # Ne supprime QUE les fichiers, jamais les dossiers (__pycache__)
             if os.path.isfile(path) and entry != "__init__.py":
                 os.remove(path)
         print(f"   ➡ Migrations nettoyées pour {app}")
-
 
 def _reset_db_if_sqlite():
     db_path = _sqlite_path()
@@ -57,23 +68,18 @@ def _reset_db_if_sqlite():
         print(f"🗑 Suppression de la base SQLite : {db_path}")
         os.remove(db_path)
 
-
 def run_seed():
     print("\n🚀 Lancement du SEED...\n")
 
-    # 1) Reset DB si SQLite
     _reset_db_if_sqlite()
-
-    # 2) Nettoyage des migrations
     _clean_migrations()
 
-    # 3) Recréation des migrations + migrate
     print("📦 Recréation des migrations et application...")
     call_command("makemigrations", *APPS, verbosity=1)
     call_command("migrate", verbosity=1)
     print("✅ Migrations terminées.\n")
 
-    # 4) Création des utilisateurs
+    # Utilisateurs
     User = get_user_model()
     print("👤 Création des utilisateurs :")
     users = []
@@ -90,40 +96,42 @@ def run_seed():
 
     commercial = next(u for u in users if u.role == "COMMERCIAL")
     support = next(u for u in users if u.role == "SUPPORT")
-    gestion = next(u for u in users if u.role == "GESTION")
 
-    # 5) Création des clients
+    # Clients
     print("🏢 Création des clients :")
     clients = []
-    for i in range(5):
+    for full_name, company in random.sample(CLIENT_NAMES, 5):
         client = Client.objects.create(
-            full_name=f"Client Test {i+1}",
-            email=f"client{i+1}@fake.com",
-            phone=f"06{random.randint(10000000, 99999999)}",
-            company_name=f"Entreprise {i+1}",
-            last_contact=timezone.now().date() - timedelta(days=random.randint(1, 30)),
+            full_name=full_name,
+            email=f"{full_name.lower().replace(' ', '.')}@exemple.com",
+            phone=f"0{random.randint(6,7)}{random.randint(10000000, 99999999)}",
+            company_name=company,
+            last_contact=timezone.now().date() - timedelta(days=random.randint(1, 60)),
             sales_contact=commercial,
         )
         clients.append(client)
         print(f"   ➡ {client.full_name} ({client.email})")
     print()
 
-    # 6) Création des contrats
+    # Contrats
     print("📄 Création des contrats :")
     contracts = []
     for client in clients:
+        total_amount = round(random.uniform(1200, 8000), 2)
+        amount_due = round(random.uniform(0, total_amount), 2)
         contract = Contract.objects.create(
             client=client,
-            sales_contact=gestion,
-            total_amount=round(random.uniform(1000, 5000), 2),
-            amount_due=round(random.uniform(0, 2500), 2),
+            sales_contact=commercial,
+            total_amount=total_amount,
+            amount_due=amount_due,
             is_signed=random.choice([True, False]),
         )
         contracts.append(contract)
-        print(f"   ➡ Contrat {contract.id} - Client : {client.full_name} | Signé : {contract.is_signed}")
+        print(f"   ➡ Contrat {contract.id} - Client : {client.full_name} | "
+              f"Montant : {total_amount}€ | Signé : {contract.is_signed}")
     print()
 
-    # 7) Création des événements pour les contrats signés (TZ aware)
+    # Événements
     print("📅 Création des événements :")
     for contract in contracts:
         if contract.is_signed:
@@ -131,19 +139,27 @@ def run_seed():
                 contract=contract,
                 client=contract.client,
                 support_contact=support,
-                event_name=f"Événement pour {contract.client.full_name}",
-                event_start=timezone.now() + timedelta(days=random.randint(1, 10)),
-                event_end=timezone.now() + timedelta(days=random.randint(11, 20)),
-                location=f"Salle {random.randint(1, 10)} - Paris",
-                attendees=random.randint(10, 100),
-                notes="Créé via seed",
+                event_name=random.choice([
+                    "Formation produit", "Conférence annuelle", "Atelier découverte",
+                    "Séminaire stratégique", "Présentation client", "Atelier technique"
+                ]) + f" - {contract.client.company_name}",
+                event_start=timezone.now() + timedelta(days=random.randint(2, 15)),
+                event_end=timezone.now() + timedelta(days=random.randint(16, 30)),
+                location=random.choice(EVENT_LOCATIONS),
+                attendees=random.randint(5, 150),
+                notes=random.choice([
+                    "Prévoir café et viennoiseries.",
+                    "Matériel audio/vidéo requis.",
+                    "Invitations envoyées.",
+                    "Salle confirmée.",
+                    "En attente de confirmation du client."
+                ]),
             )
             print(f"   ➡ {event.event_name} ({event.location})")
     print()
 
     print("🎯 SEED TERMINÉ AVEC SUCCÈS ✅")
     print(f"👥 Usernames : {[u['username'] for u in USER_DATA]}")
-
 
 if __name__ == "__main__":
     try:

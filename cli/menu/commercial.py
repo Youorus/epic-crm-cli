@@ -1,63 +1,109 @@
-# cli/menu/commercial.py
-from cli.forms.create_client_form import create_client_form
-from cli.forms.create_event_form import create_event_form
-from cli.forms.update_client_form import update_client_form
-from cli.forms.update_contract_form import update_contract_form
-from cli.forms.update_event_form import update_event_form
-from cli.services.create_client import create_client
-from cli.services.create_event import create_event
-from cli.services.get_clients import list_clients
-from cli.services.get_contracts import list_contracts
-from cli.services.update_client import update_client
-from cli.services.update_contract import update_contract
-from cli.services.update_event import update_event
+# cli/menus/commercial_menu.py
 
-def commercial_menu(user, token):
+from typing import Optional
+
+from cli.services.clients.get_clients import list_clients
+from cli.services.contracts.get_contracts import list_contracts
+from cli.forms.clients.create_client_form import create_client_form
+from cli.forms.clients.update_client_form import update_client_form
+from cli.forms.events.create_event_form import create_event_form
+
+
+def commercial_menu() -> Optional[None]:
+    """
+    Affiche le menu principal pour un utilisateur au rôle COMMERCIAL.
+
+    Comportement :
+      1) Lister les clients du commercial (restriction côté API).
+      2) Créer un client (formulaire → POST direct).
+      3) Mettre à jour l’un de ses clients (formulaire → PATCH direct).
+      4) Lister les contrats (restriction par rôle côté API).
+      5) Lister uniquement les contrats non signés (filtre serveur).
+      6) Lister les contrats avec montant dû > 0 (filtre serveur).
+      7) Créer un événement pour un contrat signé (formulaire → POST direct).
+      0) Retour au routeur de menus.
+
+    Retour :
+      - None (fonction purement interactive).
+    """
     while True:
-        print("\n--- MENU COMMERCIAL ---")
-        print("1. Lister tous les clients")
+        # ─────────────────────────────────────────────────────────
+        # Affichage du menu
+        # ─────────────────────────────────────────────────────────
+        print("\n" + "=" * 50)
+        print("🧭 MENU COMMERCIAL".center(50))
+        print("=" * 50)
+        print("1. Lister mes clients")
         print("2. Créer un client")
-        print("3. Mettre à jour un client (dont je suis responsable)")
-        print("4. Lister tous les contrats")
+        print("3. Mettre à jour un de mes clients")
+        print("4. Lister mes contrats")
         print("5. Contrats non signés")
-        print("6. Contrats non payés")
-        print("7. Modifier un contrat (dont je suis responsable)")
-        print("8. Créer un événement (pour un client avec contrat signé)")
-        print("0. Quitter")
-        choice = input("Choix : ")
+        print("6. Modifier un de mes contrats")
+        print("7. Créer un événement (pour un contrat signé)")
+        print("0. Retour")
 
-        if choice == '1':
-            list_clients(token)
+        choice = input("\nVotre choix : ").strip()
 
-        elif choice == '2':
-            data = create_client_form()
-            create_client(token, data)
+        # ─────────────────────────────────────────────────────────
+        # 1) Lister les clients du commercial (backend restreint par rôle)
+        # ─────────────────────────────────────────────────────────
+        if choice == "1":
+            list_clients(display=True)
 
-        elif choice == '3':
-            client_id, data = update_client_form(token, user)
-            update_client(token, client_id, data)
+        # ─────────────────────────────────────────────────────────
+        # 2) Créer un client (la form gère validation + POST)
+        # ─────────────────────────────────────────────────────────
+        elif choice == "2":
+            create_client_form()
 
-        elif choice == '4':
-            list_contracts(token)
+        # ─────────────────────────────────────────────────────────
+        # 3) Mettre à jour un client (saisie de l’ID, validation basique)
+        # ─────────────────────────────────────────────────────────
+        elif choice == "3":
+            cid = input("ID du client à modifier (ou 'retour') : ").strip()
+            if cid.lower() != "retour" and cid.isdigit():
+                update_client_form(int(cid))
+            elif cid.lower() != "retour":
+                print("❌ L’ID doit être un entier.")
 
-        elif choice == '5':
-            list_contracts(token, filters="?is_signed=false")
+        # ─────────────────────────────────────────────────────────
+        # 4) Lister les contrats (restriction par rôle côté API)
+        # ─────────────────────────────────────────────────────────
+        elif choice == "4":
+            list_contracts(display=True)
 
-        elif choice == '6':
-            list_contracts(token, filters="?amount_due__gt=0")
+        # ─────────────────────────────────────────────────────────
+        # 5) Contrats non signés (filtre serveur : ?is_signed=false)
+        # ─────────────────────────────────────────────────────────
+        elif choice == "5":
+            list_contracts(params={"is_signed": "false"}, display=True)
 
-        elif choice == '7':
-            contract_id, data = update_contract_form()
-            update_contract(token, contract_id, data)
+        # ─────────────────────────────────────────────────────────
+        # 6) Contrats avec montant dû > 0 (filtre serveur)
+        # ─────────────────────────────────────────────────────────
+        elif choice == "6":
+            list_contracts(params={"amount_due__gt": "0"}, display=True)
 
-        elif choice == '8':
-            signed_contracts = list_contracts(token, filters="?is_signed=true", display=False)
-            data = create_event_form(signed_contracts, user)
-            if data:
-                create_event(token, data)
+        # ─────────────────────────────────────────────────────────
+        # 7) Créer un événement pour un contrat signé :
+        #    - Récupère la liste des contrats signés (filtre serveur),
+        #    - Passe cette liste au formulaire, qui POST directement l’événement.
+        # ─────────────────────────────────────────────────────────
+        elif choice == "7":
+            signed_contracts = list_contracts(params={"is_signed": "true"}, display=False)
+            if not signed_contracts:
+                print("ℹ️ Aucun contrat signé disponible.")
+                continue
+            create_event_form(signed_contracts)
 
-        elif choice == '0':
-            break
+        # ─────────────────────────────────────────────────────────
+        # 0) Retour
+        # ─────────────────────────────────────────────────────────
+        elif choice == "0":
+            return None
 
+        # ─────────────────────────────────────────────────────────
+        # Choix invalide
+        # ─────────────────────────────────────────────────────────
         else:
-            print("❌ Choix invalide.")
+            print("❌ Choix invalide. Réessayez.")

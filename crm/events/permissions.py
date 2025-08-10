@@ -1,31 +1,53 @@
+# crm/events/permissions.py
+
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class EventPermission(BasePermission):
     """
-    COMMERCIAL : Peut créer un événement (après signature du contrat) pour ses clients.
-    GESTION : Peut assigner le support, tout voir/éditer.
-    SUPPORT : Lecture/édition uniquement sur les événements qui lui sont assignés.
+    COMMERCIAL : peut créer un événement (contrat signé) pour ses clients.
+    GESTION    : accès complet (CRUD).
+    SUPPORT    : lecture + modification (PUT/PATCH) uniquement de ses événements.
     """
 
     def has_permission(self, request, view):
-        if request.user.role in ["GESTION", "COMMERCIAL"]:
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.role in ["GESTION", "COMMERCIAL"]:
             return True
-        if request.user.role == "SUPPORT" and request.method in SAFE_METHODS:
-            return True
+
+        if user.role == "SUPPORT":
+            # Autoriser lecture ET update (PUT/PATCH). Pas de POST/DELETE.
+            if request.method in SAFE_METHODS:
+                return True
+            if request.method in ("PUT", "PATCH"):
+                return True
+            return False
+
         return False
 
     def has_object_permission(self, request, view, obj):
-        # GESTION : accès total
-        if request.user.role == "GESTION":
+        user = request.user
+
+        if user.role == "GESTION":
             return True
-        # COMMERCIAL : accès si c'est l'événement de son client
-        if request.user.role == "COMMERCIAL":
-            if obj.client.sales_contact == request.user:
-                # Peut créer si le contrat est signé
-                if request.method == "POST":
-                    return obj.contract.is_signed
-                return request.method in SAFE_METHODS
-        # SUPPORT : accès uniquement aux événements qui lui sont assignés
-        if request.user.role == "SUPPORT":
-            return obj.support_contact == request.user and request.method in ['GET', 'PUT', 'PATCH']
+
+        if request.method in SAFE_METHODS:
+            # COMMERCIAL/SUPPORT peuvent lire ce que leur get_queryset expose
+            # (déjà filtré par la view), mais on reste prudent :
+            if user.role == "COMMERCIAL":
+                return obj.client.sales_contact_id == user.id
+            if user.role == "SUPPORT":
+                return obj.support_contact_id == user.id
+            return False
+
+        if user.role == "COMMERCIAL":
+            # Commercial n’édite pas l’événement (selon ta règle actuelle)
+            return False
+
+        if user.role == "SUPPORT":
+            # Support peut modifier uniquement ses événements
+            return obj.support_contact_id == user.id and request.method in ("PUT", "PATCH")
+
         return False
