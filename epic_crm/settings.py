@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_yasg',
 
     # 3rd-party
     'rest_framework',
@@ -42,6 +43,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Epic CRM API",
+    "DESCRIPTION": "Documentation de l’API Epic CRM",
+    "VERSION": "1.0.0",
+}
 
 ROOT_URLCONF = 'epic_crm.urls'
 
